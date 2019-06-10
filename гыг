@@ -1,0 +1,537 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <iomanip>
+#include <locale.h>
+#include <Windows.h>
+#include <cstring>
+#include <string>
+#include <fstream>
+#include <stdlib.h>
+#include <cstdio>
+
+
+using namespace std;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//			СТРУКТУРЫ			СТРУКТУРЫ			СТРУКТУРЫ			СТРУКТУРЫ			СТРУКТУРЫ			СТРУКТУРЫ			СТРУКТУРЫ
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct fio
+{
+	char FN[20];
+	char LN[20];
+};
+
+struct date
+{
+	int day;
+	char mon[20];
+	int year;
+};
+
+struct Car
+{
+	char mark[20];
+	fio fio;
+	int pow;
+	int mil;
+	date date;
+	void input(Car &car);
+	Car *next;
+};
+
+class List
+{
+	Car *head;
+public:
+	List() :head(NULL) {};
+	void add_car(Car &car);
+	void show();
+	void find_mark(Car &car, char fmark[20]);
+	void find_human(Car &car, int fmil);
+	void find_car(Car &car, int cday, int cmon, int cyear);
+	void record(Car &car, FILE *fp);
+	void delete_car(Car &car);
+	void scan(Car &car, FILE *fp);
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//			 ФУНКЦИИ			 ФУНКЦИИ			 ФУНКЦИИ			 ФУНКЦИИ			 ФУНКЦИИ			 ФУНКЦИИ			 ФУНКЦИИ
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Car::input(Car &car)
+{
+	cout << endl << '\t' << "Введите марку машины: ";
+	cin.getline(mark, 20);
+	cout << endl << endl << '\t' << "Введите имя фамилию владельца:  ";
+	cin.getline(fio.FN, 20);
+	cout << '\t' << '\t' << '\t' << '\t' << '\t';
+	cin.getline(fio.LN, 20);
+	cout << endl << endl << '\t' << "Введите мощность двигателя: ";
+	cin >> pow;
+	cin.ignore();
+	cout << endl << endl << '\t' << "Введите пробег: ";
+	cin >> mil;
+	cin.ignore();
+	cout << endl << endl << '\t' << "Введите дату ТО: " << endl;
+	cout << endl << endl << '\t' << "Введите число: ";
+	cin >> date.day;
+	cin.ignore();
+	cout << endl << endl << '\t' << "Введите месяц (словом): ";
+	cin.getline(date.mon, 20);
+	cout << endl << endl << '\t' << "Введите год: ";
+	cin >> date.year;
+	cin.ignore();
+}
+
+void List::add_car(Car &car)
+{
+	Car *temp = new Car;
+	temp->next = head;
+	strcpy(temp->mark, car.mark);
+	strcpy(temp->fio.FN, car.fio.FN);
+	strcpy(temp->fio.LN, car.fio.LN);
+	temp->pow = car.pow;
+	temp->mil = car.mil;
+	temp->date.day = car.date.day;
+	strcpy(temp->date.mon, car.date.mon);
+	temp->date.year = car.date.year;
+	head = temp;
+}
+
+void List::show()
+{
+	Car *temp = head;
+
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+	cout << "|-Марка-| |--Имя--| |-Фамилия-| |-Мощность-| |-Пробег-| |-----Дата TO-----|" << endl;
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+
+	while (temp != NULL)
+	{
+		cout << "|" << setw(7) << left << temp->mark << "| ";
+		cout << "|" << setw(7) << left << temp->fio.FN << "| ";
+		cout << "|" << setw(9) << left << temp->fio.LN << "| ";
+		cout << "|" << setw(10) << left << temp->pow << "| ";
+		cout << "|" << setw(8) << left << temp->mil << "| ";
+		cout << "|" << setw(2) << left << temp->date.day <<
+			setw(1) << left << " " << setw(8) << left << temp->date.mon <<
+			setw(1) << left << " " << setw(5) << left << temp->date.year << "|";
+
+		cout << endl << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+
+		temp = temp->next;
+	}
+}
+
+void List::find_mark(Car &car, char fmark[20])
+{
+	Car *temp = head;
+
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+	cout << "|-Марка-| |--Имя--| |-Фамилия-| |-Мощность-| |-Пробег-| |-----Дата TO-----|" << endl;
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+
+	while (temp != NULL)
+	{
+		if (strcmp(temp->mark, fmark) == 0)
+		{
+			cout << "|" << setw(7) << left << temp->mark << "| ";
+			cout << "|" << setw(7) << left << temp->fio.FN << "| ";
+			cout << "|" << setw(9) << left << temp->fio.LN << "| ";
+			cout << "|" << setw(10) << left << temp->pow << "| ";
+			cout << "|" << setw(8) << left << temp->mil << "| ";
+			cout << "|" << setw(2) << left << temp->date.day <<
+				setw(1) << left << " " << setw(8) << left << temp->date.mon <<
+				setw(1) << left << " " << setw(5) << left << temp->date.year << "|";
+
+			cout << endl << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+		}
+
+		temp = temp->next;
+	}
+}
+
+void List::find_human(Car &car, int fmil)
+{
+	Car *temp = head;
+
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+	cout << "|-Марка-| |--Имя--| |-Фамилия-| |-Мощность-| |-Пробег-| |-----Дата TO-----|" << endl;
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+
+	while (temp != NULL)
+	{
+		if (temp->mil > fmil)
+		{
+			cout << "|" << setw(7) << left << temp->mark << "| ";
+			cout << "|" << setw(7) << left << temp->fio.FN << "| ";
+			cout << "|" << setw(9) << left << temp->fio.LN << "| ";
+			cout << "|" << setw(10) << left << temp->pow << "| ";
+			cout << "|" << setw(8) << left << temp->mil << "| ";
+			cout << "|" << setw(2) << left << temp->date.day <<
+				setw(1) << left << " " << setw(8) << left << temp->date.mon <<
+				setw(1) << left << " " << setw(5) << left << temp->date.year << "|";
+
+			cout << endl << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+		}
+
+		temp = temp->next;
+	}
+}
+
+void List::find_car(Car &car, int cday, int cmon, int cyear)
+{
+	Car *temp = head;
+
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+	cout << "|-Марка-| |--Имя--| |-Фамилия-| |-Мощность-| |-Пробег-| |-----Дата TO-----|" << endl;
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+
+	int numm;
+	while (temp != NULL)
+	{
+		if (strcmp(temp->date.mon, "января") == 0)
+			numm = 1;
+		if (strcmp(temp->date.mon, "февраля") == 0)
+			numm = 2;
+		if (strcmp(temp->date.mon, "марта") == 0)
+			numm = 3;
+		if (strcmp(temp->date.mon, "апреля") == 0)
+			numm = 4;
+		if (strcmp(temp->date.mon, "мая") == 0)
+			numm = 5;
+		if (strcmp(temp->date.mon, "июня") == 0)
+			numm = 6;
+		if (strcmp(temp->date.mon, "июля") == 0)
+			numm = 7;
+		if (strcmp(temp->date.mon, "августа") == 0)
+			numm = 8;
+		if (strcmp(temp->date.mon, "сентября") == 0)
+			numm = 9;
+		if (strcmp(temp->date.mon, "октября") == 0)
+			numm = 10;
+		if (strcmp(temp->date.mon, "ноября") == 0)
+			numm = 11;
+		if (strcmp(temp->date.mon, "декабря") == 0)
+			numm = 12;
+
+		int km, ckm;
+		km = temp->date.year * 12 + numm;
+		ckm = cyear * 12 + cmon;
+		if ((ckm - km <= 18) && (ckm - km >= 0))
+		{
+			if (ckm - km == 18)
+			{
+				if (abs(temp->date.day - cday) == 0)
+				{
+					cout << "|" << setw(7) << left << temp->mark << "| ";
+					cout << "|" << setw(7) << left << temp->fio.FN << "| ";
+					cout << "|" << setw(9) << left << temp->fio.LN << "| ";
+					cout << "|" << setw(10) << left << temp->pow << "| ";
+					cout << "|" << setw(8) << left << temp->mil << "| ";
+					cout << "|" << setw(2) << left << temp->date.day <<
+						setw(1) << left << " " << setw(8) << left << temp->date.mon <<
+						setw(1) << left << " " << setw(5) << left << temp->date.year << "|";
+
+					cout << endl << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+				}
+			}
+			else
+			{
+				cout << "|" << setw(7) << left << temp->mark << "| ";
+				cout << "|" << setw(7) << left << temp->fio.FN << "| ";
+				cout << "|" << setw(9) << left << temp->fio.LN << "| ";
+				cout << "|" << setw(10) << left << temp->pow << "| ";
+				cout << "|" << setw(8) << left << temp->mil << "| ";
+				cout << "|" << setw(2) << left << temp->date.day <<
+					setw(1) << left << " " << setw(8) << left << temp->date.mon <<
+					setw(1) << left << " " << setw(5) << left << temp->date.year << "|";
+
+				cout << endl << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+			}
+		}
+
+		temp = temp->next;
+	}
+}
+
+void List::record(Car &car, FILE *fp)
+{
+	Car *temp = head;
+
+	while (temp != NULL)
+	{
+		fprintf(fp, "%s %s %s %d %d %d %s %d \n ", temp->mark,
+			temp->fio.FN,
+			temp->fio.LN,
+			temp->pow,
+			temp->mil,
+			temp->date.day,
+			temp->date.mon,
+			temp->date.year);
+
+		temp = temp->next;
+	}
+}
+
+void List::scan(Car &car, FILE *fp)
+{
+	head = NULL;
+	ifstream file("text.txt",ios::in);
+	while (!file.eof())
+	{
+		Car *temp = new Car;
+		fscanf(fp, "%s %s %s %d %d %d %s %d \n ", temp->mark,
+			temp->fio.FN,
+			temp->fio.LN,
+			&temp->pow,
+			&temp->mil,
+			&temp->date.day,
+			temp->date.mon,
+			&temp->date.year);
+
+		temp->next=head;
+	}
+	file.close();
+}
+
+void List::delete_car(Car &car)
+{
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//			  MAIN			 	   MAIN			      MAIN			 	   MAIN			 	   MAIN			 	   MAIN			 	   MAIN
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+int main()
+{
+	setlocale(LC_CTYPE, "RUS");
+	SetConsoleOutputCP(1251);
+	SetConsoleCP(1251);
+
+	//			ОБЪЯВЛЕНИЕ ПЕРЕМЕННЫХ			//
+
+	int a = 1;
+	int size;
+	int hsize = 0;
+	char fmark[20];
+	int fmil;
+	int cnumb, cmon, cyear;
+	int saved_size = 0;
+
+	Car car;
+	List Ist;
+
+	//////////////////////////////////////////////
+
+
+	FILE *fp;
+	char path[] = "text.txt";
+
+	if ((fp = fopen(path, "r")) == NULL)
+	{
+		cout << endl << '\t' << "Файл не найден" << endl;
+
+
+		//			ОБРАЩЕНИЕ К ФУНКЦИЯМ			//
+
+		while (a != 0)
+		{
+			int k;
+			cout << endl << endl << '\t' << "Выберите команду" << endl << endl;
+			cout << '\t' << "1-----Добавить машину" << endl;
+			cout << '\t' << "2-----Распечатать информацию о машине" << endl;
+			cout << '\t' << "3-----Найти все машины  заданной марки" << endl;
+			cout << '\t' << "4-----Найти всех владельцев с пробегом машины больше заданного" << endl;
+			cout << '\t' << "5-----Найти машины, у которых с даты последнего ТО прошло менее" << '\n' << '\t' << "18 месяцев" << endl;
+			cout << '\t' << "6-----Найти и удалить все машины мощностью двигателя меньше  заданной" << endl;
+			cout << '\t' << "7-----Cортировать основной список по увеличению пробега машины" << endl;
+			cout << '\t' << "0-----Закрыть программу" << endl << endl << '\t' << "Вы ввели: ";
+
+			cin >> k;
+			cin.ignore();
+
+			cout << endl;
+
+			switch (k)
+			{
+			case 1:
+				cout << '\t' << "Введите количество машин: ";
+				cin >> size;
+				cin.ignore();
+				hsize += size;
+				for (int i = 0; i < size; i++)
+				{
+					car.input(car);
+					Ist.add_car(car);
+				}
+				break;
+			case 2:
+				Ist.show();
+				break;
+			case 3:
+				cout << endl << '\t' << "Введите марку: ";
+				cin.getline(fmark, 20);
+				cout << endl;
+				Ist.find_mark(car, fmark);
+				cout << endl << endl;
+				break;
+			case 4:
+				cout << endl << '\t' << "Введите пробег: ";
+				cin >> fmil;
+				cin.ignore();
+				cout << endl;
+				Ist.find_human(car, fmil);
+				cout << endl << endl;
+				break;
+			case 5:
+				cout << endl << '\t' << "Введите сегодняшнюю дату: " << endl << '\t' << "Число: ";
+				cin >> cnumb;
+				cin.ignore();
+				cout << endl << '\t' << "Месяц (числом): ";
+				cin >> cmon;
+				cin.ignore();
+				cout << endl << '\t' << "Год: ";
+				cin >> cyear;
+				cin.ignore();
+				cout << endl;
+				Ist.find_car(car, cnumb, cmon, cyear);
+				cout << endl << endl;
+				break;
+			case 0:
+				a = 0;
+				break;
+			default:
+				cout << endl << '\t' << "Неверно введена команда" << endl;
+			}
+
+			//		     ЗАПОЛНЕНИЕ ФАЙЛА		     //
+
+			fp = fopen(path, "w+");
+
+			Ist.record(car, fp);
+
+			///////////////////////////////////////////
+		}
+
+		///////////////////////////////////////////////
+
+	}
+	else
+	{
+		Ist.scan(car, fp);
+
+		//			 СЧИТЫВАНИЕ С ФАЙЛА				//
+
+		cout << "Файл существует" << endl;
+
+		//			ОБРАЩЕНИЕ К ФУНКЦИЯМ			//
+
+		while (a != 0)
+		{
+
+			int k;
+			cout << endl << endl << '\t' << "Выберите команду" << endl << endl;
+			cout << '\t' << "1-----Добавить машину" << endl;
+			cout << '\t' << "2-----Распечатать информацию о машине" << endl;
+			cout << '\t' << "3-----Найти все машины  заданной марки" << endl;
+			cout << '\t' << "4-----Найти всех владельцев с пробегом машины больше заданного" << endl;
+			cout << '\t' << "5-----Найти машины, у которых с даты последнего ТО прошло менее" << '\n' << '\t' << "18 месяцев" << endl;
+			cout << '\t' << "0-----Закрыть программу" << endl << endl << '\t' << "Вы ввели: ";
+
+
+			cin >> k;
+			cin.ignore();
+
+			cout << endl;
+
+			switch (k)
+			{
+			case 1:
+				cout << '\t' << "Введите количество машин: ";
+				cin >> size;
+				cin.ignore();
+				for (int i = 0; i < size; i++)
+				{
+					car.input(car);
+					Ist.add_car(car);
+				}
+				break;
+			case 2:
+				Ist.show();
+				break;
+			case 3:
+				cout << endl << '\t' << "Введите марку: ";
+				cin.getline(fmark, 20);
+				cout << endl;
+				Ist.find_mark(car, fmark);
+				cout << endl << endl;
+				break;
+			case 4:
+				cout << endl << '\t' << "Введите пробег: ";
+				cin >> fmil;
+				cin.ignore();
+				cout << endl;
+				Ist.find_human(car, fmil);
+				cout << endl << endl;
+				break;
+			case 5:
+				cout << endl << '\t' << "Введите сегодняшнюю дату: " << endl << '\t' << "Число: ";
+				cin >> cnumb;
+				cin.ignore();
+				cout << endl << '\t' << "Месяц (числом): ";
+				cin >> cmon;
+				cin.ignore();
+				cout << endl << '\t' << "Год: ";
+				cin >> cyear;
+				cin.ignore();
+				cout << endl;
+				Ist.find_car(car, cnumb, cmon, cyear);
+				cout << endl << endl;
+				break;
+			case 0:
+				a = 0;
+				break;
+			default:
+				cout << endl << '\t' << "Неверно введена команда" << endl;
+			}
+		}
+
+		///////////////////////////////////////////////
+
+		///////////////////////////////////////////////
+
+
+		//				ЗАПИСЬ В ФАЙЛ				//
+
+		fp = fopen(path, "w+");
+
+		fprintf(fp, "%d", size);
+		fprintf(fp, "\n");
+
+		Ist.record(car, fp);
+	}
+	system("pause");
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
