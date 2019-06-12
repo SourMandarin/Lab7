@@ -43,17 +43,17 @@ struct Car
 class List
 {
 	Car *head;
+	List *next;
 public:
 	List() :head(NULL) {};
 	void add_car(Car &car);
-	void show();
+	void show1();
+	void show2(Car *firstCar);
 	void find_mark(Car &car, char fmark[20]);
 	void find_human(Car &car, int fmil);
 	void find_car(Car &car, int cday, int cmon, int cyear);
 	void record(Car &car, FILE *fp);
-	void delete_car(Car &car);
-	int find_size(Car &car, FILE *fp, int hsize);
-	void scan(Car &car, FILE *fp, int hsize);
+	int delete_car(Car &car, int fpow, int hsize);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -106,8 +106,34 @@ void List::add_car(Car &car)
 	head = temp;
 }
 
-void List::show()
+void List::show1()
 {
+	Car *temp = head;
+
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+	cout << "|-Марка-| |--Имя--| |-Фамилия-| |-Мощность-| |-Пробег-| |-----Дата TO-----|" << endl;
+	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+
+	while (temp != NULL)
+	{
+		cout << "|" << setw(7) << left << temp->mark << "| ";
+		cout << "|" << setw(7) << left << temp->fio.FN << "| ";
+		cout << "|" << setw(9) << left << temp->fio.LN << "| ";
+		cout << "|" << setw(10) << left << temp->pow << "| ";
+		cout << "|" << setw(8) << left << temp->mil << "| ";
+		cout << "|" << setw(2) << left << temp->date.day <<
+			setw(1) << left << " " << setw(8) << left << temp->date.mon <<
+			setw(1) << left << " " << setw(5) << left << temp->date.year << "|";
+
+		cout << endl << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
+
+		temp = temp->next;
+	}
+}
+
+void List::show2(Car *firstCar)
+{
+	head = firstCar;
 	Car *temp = head;
 
 	cout << "|-------| |-------| |---------| |----------| |--------| |-----------------|" << endl;
@@ -282,97 +308,22 @@ void List::record(Car &car, FILE *fp)
 	}
 }
 
-int List::find_size(Car &car, FILE *fp, int hsize)
+int List::delete_car(Car &car, int fpow, int hsize)
 {
-	ifstream file("text.txt");
-	if (!file)
+	Car *temp = head;
+	Car *prev = NULL;
+
+	for (int i = 0; i <= hsize; i++)
 	{
-		cout << "While opening a file an error is encountered" << endl;
-	}
-	else
-	{
-		cout << "File is successfully opened" << endl;
-		char *g = new char[1024];
-		while (!file.eof())
+		if (temp->next->pow < fpow)
 		{
-			file.getline(g, 1024, '\n');
-			hsize++;
+			prev = temp;
+
 		}
-		cout << hsize<<endl;
 	}
+	
 	return hsize;
 }
-
-void List::scan(Car &car, FILE *fp, int hsize)
-{
-	ifstream file("text.txt");
-	char a[80];
-	for (int i = 0; i < hsize; i++)
-	{
-		Car *temp = new Car;
-		temp->next = head;
-
-		if (!file.eof())
-		{
-			file >> a;
-			cout << a << endl;
-			strcpy(temp->mark, a);
-		}
-		if (!file.eof())
-		{
-			file >> a;
-			cout << a << endl;
-			strcpy(temp->fio.FN, a);
-		}
-		if (!file.eof())
-		{
-			file >> a;
-			cout << a << endl;
-			strcpy(temp->fio.LN, a);
-		}
-		if (!file.eof())
-		{
-			file >> a;
-			cout << a << endl;
-			int b = atoi(a);
-			temp->pow = b;
-		}
-		if (!file.eof())
-		{
-			file >> a;
-			cout << a << endl;
-			int b = atoi(a);
-			temp->mil = b;
-		}
-		if (!file.eof())
-		{
-			file >> a;
-			cout << a << endl;
-			int b = atoi(a);
-			temp->date.day = b;
-		}
-		if (!file.eof())
-		{
-			file >> a;
-			cout << a << endl;
-			strcpy(temp->date.mon, a);
-		}
-		if (!file.eof())
-		{
-			file >> a;
-			cout << a << endl;
-			int b = atoi(a);
-			temp->date.year = b;
-		}
-		head = temp;
-	}
-}
-
-void List::delete_car(Car &car)
-{
-
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -397,8 +348,11 @@ int main()
 	int hsize = 0;
 	char fmark[20];
 	int fmil;
+	int fpow;
 	int cnumb, cmon, cyear;
 	int saved_size = 0;
+
+	Car *firstCar=0, *count, *reading;
 
 	Car car;
 	List Ist;
@@ -446,9 +400,10 @@ int main()
 					car.input(car);
 					Ist.add_car(car);
 				}
+				Ist.show1();
 				break;
 			case 2:
-				Ist.show();
+				Ist.show1();
 				break;
 			case 3:
 				cout << endl << '\t' << "Введите марку: ";
@@ -479,6 +434,14 @@ int main()
 				Ist.find_car(car, cnumb, cmon, cyear);
 				cout << endl << endl;
 				break;
+			case 6:
+				cout << endl << '\t' << "Введите мощность: ";
+				cin >> fpow;
+				cin.ignore();
+				cout << endl << endl;
+				hsize=Ist.delete_car(car, fpow, hsize);
+				cout << "Количество машин:" << hsize << endl << endl;
+				Ist.show1();
 			case 0:
 				a = 0;
 				break;
@@ -489,6 +452,9 @@ int main()
 			//		     ЗАПОЛНЕНИЕ ФАЙЛА		     //
 
 			fp = fopen(path, "w+");
+
+			fprintf(fp, "%d", size);
+			fprintf(fp, "\n");
 
 			Ist.record(car, fp);
 
@@ -503,8 +469,45 @@ int main()
 		//			 СЧИТЫВАНИЕ С ФАЙЛА				//
 
 		cout << "Файл существует" << endl;
-		Ist.find_size(car, fp, hsize);
-		Ist.scan(car, fp, hsize);
+		firstCar = nullptr;
+
+
+		ifstream fin("text.txt");
+
+		if (fin)
+		{
+			fin >> hsize;
+			cout << "Количество машин:" << hsize << endl<<endl;
+			for (int i = 0; i < hsize; i++)
+			{
+				Car *temp = new Car;
+				fin >> temp->mark;
+				fin >> temp->fio.FN;
+				fin >> temp->fio.LN;
+				fin >> temp->pow;
+				fin >> temp->mil;
+				fin >> temp->date.day;
+				fin >> temp->date.mon;
+				fin >> temp->date.year;
+				temp->next = nullptr;
+
+				if (firstCar == nullptr)
+				{
+					firstCar = temp;
+				}
+				else
+				{
+					count = firstCar;
+					while (count->next != nullptr)
+					{
+						count = count->next;
+					}
+					count->next = temp;
+				}
+			}
+		}
+
+		Ist.show2(firstCar);
 
 		//			ОБРАЩЕНИЕ К ФУНКЦИЯМ			//
 
@@ -518,8 +521,9 @@ int main()
 			cout << '\t' << "3-----Найти все машины  заданной марки" << endl;
 			cout << '\t' << "4-----Найти всех владельцев с пробегом машины больше заданного" << endl;
 			cout << '\t' << "5-----Найти машины, у которых с даты последнего ТО прошло менее" << '\n' << '\t' << "18 месяцев" << endl;
+			cout << '\t' << "6-----Найти и удалить все машины мощностью двигателя меньше  заданной" << endl;
+			cout << '\t' << "7-----Cортировать основной список по увеличению пробега машины" << endl;
 			cout << '\t' << "0-----Закрыть программу" << endl << endl << '\t' << "Вы ввели: ";
-
 
 			cin >> k;
 			cin.ignore();
@@ -532,14 +536,16 @@ int main()
 				cout << '\t' << "Введите количество машин: ";
 				cin >> size;
 				cin.ignore();
+				hsize += size;
 				for (int i = 0; i < size; i++)
 				{
 					car.input(car);
 					Ist.add_car(car);
 				}
+				Ist.show2(firstCar);
 				break;
 			case 2:
-				Ist.show();
+				Ist.show2(firstCar);
 				break;
 			case 3:
 				cout << endl << '\t' << "Введите марку: ";
@@ -570,6 +576,14 @@ int main()
 				Ist.find_car(car, cnumb, cmon, cyear);
 				cout << endl << endl;
 				break;
+			case 6:
+				cout << endl << '\t' << "Введите мощность: ";
+				cin >> fpow;
+				cin.ignore();
+				cout << endl << endl;
+				hsize = Ist.delete_car(car, fpow, hsize);
+				cout << "Количество машин:" << hsize << endl << endl;
+				Ist.show2(firstCar);
 			case 0:
 				a = 0;
 				break;
@@ -592,6 +606,7 @@ int main()
 
 		Ist.record(car, fp);
 	}
+
 	system("pause");
 	return 0;
 }
